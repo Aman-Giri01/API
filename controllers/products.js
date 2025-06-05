@@ -1,5 +1,6 @@
 import { prod } from "../model/products.js";
 
+// GET Method
 export const getAllProductsTesting= async (req,res)=>{
     const {company,name,featured,sort,select}=req.query;
 
@@ -48,3 +49,53 @@ export const getAllProducts= async (req,res)=>{
     res.status(200).json({myProducts});
 }
 
+// POST MEthod
+
+export const addProduct=async (req,res)=>{
+    const product= req.body;
+    console.log(product);
+    const addProd= await prod.create(product);
+    res.status(200).json(addProd);
+}
+
+// UPDATE (PUT) Method
+
+export const updateProducts= async (req,res)=> {
+    try {
+         const {id}=req.params;
+        const product= await prod.findByIdAndUpdate(id,req.body,{
+        new: true,
+        runValidators: true
+      });
+
+        if(!product){
+            res.status(404).json({message:"product id not Found"});
+        }
+
+        const updatedProduct= await prod.findById(id);
+        res.status(200).json(updatedProduct);
+        console.log(updatedProduct);
+    
+        
+    } catch (error) {
+        res.status(500).json({message:error.message});
+    }
+   
+}
+
+// Delete Method
+
+export const deleteProducts=async(req,res)=>{
+    try {
+         const {id}= req.params;
+         const product= await prod.findByIdAndDelete(id);
+         if(!product){
+            res.status(404).json({message:"product id not Found"});
+         }
+         res.status(200).json({message:"Product deleted succssfully."});
+        
+    } catch (error) {
+         res.status(500).json({message:error.message});
+    }
+
+}

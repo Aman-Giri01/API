@@ -11,7 +11,14 @@ router
 
 router
 .route("/testing")
-.get(products.getAllProductsTesting);
+.get(products.getAllProductsTesting)
+.post(products.addProduct)
+
+
+router
+.route("/testing/:id")
+.put(products.updateProducts)
+.delete(products.deleteProducts);
 
 
 
