@@ -107,3 +107,74 @@ export const lowStockItems=async(req,res)=>{
 }
 
 // Report Section
+export const topSelling = async (req, res) => {
+  const { start, end, limit } = req.query;
+
+  const logs = await logSchema.aggregate([
+    {
+      $match: {
+        operation: 'sell',
+        timestamp: {
+          $gte: new Date(start),
+          $lte: new Date(end)
+        }
+      }
+    },
+    {
+      $group: {
+        _id: '$itemId',
+        totalSold: { $sum: '$quantity' }
+      }
+    },
+    {
+      $lookup: {
+        from: 'items',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'item'
+      }
+    },
+    { $unwind: '$item' },
+    {
+      $project: {
+        name: '$item.name',
+        totalSold: 1
+      }
+    },
+    { $sort: { totalSold: -1 } },
+    { $limit: parseInt(limit) || 10 }
+  ]);
+
+  res.json(logs);
+};
+
+
+export const salesReport = async (req, res) => {
+  const { start, end } = req.query;
+  const logs = await logSchema.aggregate([
+    { $match: { operation: 'sell', timestamp: { $gte: new Date(start), $lte: new Date(end) } } },
+    {
+      $group: {
+        _id: '$itemId',
+        totalQuantity: { $sum: '$quantity' }
+      }
+    },
+    {
+      $lookup: {
+        from: 'items',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'item'
+      }
+    },
+    { $unwind: '$item' },
+    {
+      $project: {
+        name: '$item.name',
+        totalQuantity: 1,
+        revenue: { $multiply: ['$totalQuantity', '$item.price'] }
+      }
+    }
+  ]);
+  res.json(logs);
+};

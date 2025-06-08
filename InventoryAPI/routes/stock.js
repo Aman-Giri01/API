@@ -26,5 +26,13 @@ router.route("/item/:id/logs")
 router.route("/item/low-stock")
 .get(item.lowStockItems);
 
+// Report Section
+router.route("/item/top-selling").get(item.topSelling);
+
+router.get('/item/sales', item.salesReport);
+
+
+// router.route("/item/top-selling")
+// .get(item.topSelling);
 
 export const stockRoute=router;
